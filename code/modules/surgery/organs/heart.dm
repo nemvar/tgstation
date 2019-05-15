@@ -31,9 +31,6 @@
 		assembly.forceMove(drop_location())
 		assembly = null
 	
-/obj/item/organ/heart/IsAssemblyHolder()
-	return TRUE
-	
 /obj/item/organ/heart/receive_signal()
 	if(beating)
 		Stop()
