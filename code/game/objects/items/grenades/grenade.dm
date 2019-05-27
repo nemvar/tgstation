@@ -95,7 +95,7 @@
 		return ..()
 		
 /obj/item/grenade/proc/change_det_time(mob/user, time)
-	if(time)
+	if(time != null)
 		det_time = round(CLAMP(time * 10, 0, 300))
 		if (time * 10 != det_time)
 			to_chat(user, "<span class='warning'>The value is out of bounds. The lowest possible time is 0 seconds and highest is 30 seconds.</span>")
