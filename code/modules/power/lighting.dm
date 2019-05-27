@@ -345,8 +345,6 @@
 		var/BR = brightness
 		var/PO = bulb_power
 		var/CO = bulb_colour
-		if(color)
-			CO = color
 		var/area/A = get_area(src)
 		if (A && A.fire)
 			CO = bulb_emergency_colour
@@ -355,6 +353,8 @@
 			PO = nightshift_light_power
 			CO = nightshift_light_color
 		var/matching = light && BR == light.light_range && PO == light.light_power && CO == light.light_color
+		if(color) //color applied on the outside doesn't really matter.
+			CO = color
 		if(!matching)
 			switchcount++
 			if(rigged)
