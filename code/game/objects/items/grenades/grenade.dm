@@ -49,7 +49,7 @@
 /obj/item/grenade/examine(mob/user)
 	..()
 	if(display_timer)
-		if(det_time > 1)
+		if(det_time > 0)
 			to_chat(user, "The timer is set to [DisplayTimeText(det_time)].")
 		else
 			to_chat(user, "\The [src] is set for instant detonation.")
@@ -69,7 +69,7 @@
 	if(user)
 		add_fingerprint(user)
 		if(msg)
-			to_chat(user, "<span class='warning'>You prime [src]! [DisplayTimeText(det_time)]!</span>")
+			to_chat(user, "<span class='warning'>You prime [src]! [capitalize(DisplayTimeText(det_time))]!</span>")
 	playsound(src, 'sound/weapons/armbomb.ogg', volume, 1)
 	active = TRUE
 	icon_state = initial(icon_state) + "_active"
@@ -84,23 +84,35 @@
 
 
 /obj/item/grenade/attackby(obj/item/W, mob/user, params)
+	if(W.tool_behaviour == TOOL_MULTITOOL)
+		var/newtime = text2num(stripped_input(user, "Please enter a new detonation time", name))
+		if (newtime != null && user.canUseTopic(src, BE_CLOSE))
+			change_det_time(user, newtime)
+		return
 	if(W.tool_behaviour == TOOL_SCREWDRIVER)
-		switch(det_time)
-			if (1)
-				det_time = 10
-				to_chat(user, "<span class='notice'>You set the [name] for 1 second detonation time.</span>")
-			if (10)
-				det_time = 30
-				to_chat(user, "<span class='notice'>You set the [name] for 3 second detonation time.</span>")
-			if (30)
-				det_time = 50
-				to_chat(user, "<span class='notice'>You set the [name] for 5 second detonation time.</span>")
-			if (50)
-				det_time = 1
-				to_chat(user, "<span class='notice'>You set the [name] for instant detonation.</span>")
-		add_fingerprint(user)
+		switch_det_time(user)
 	else
 		return ..()
+		
+/obj/item/grenade/proc/change_det_time(mob/user, time)
+	if(time)
+		det_time = round(CLAMP(time * 10, 0, 300))
+		if (time * 10 != det_time)
+			to_chat(user, "<span class='warning'>The value is out of bounds. The lowest possible time is 0 seconds and highest is 30 seconds.</span>")
+	else
+		var/previous_time = det_time
+		switch(det_time)
+			if (0)
+				det_time = 10
+			if (10)
+				det_time = 30
+			if (30)
+				det_time = 50
+			if (50)
+				det_time = 0
+		if(det_time == previous_time)
+			det_time = 50
+	to_chat(user, "<span class='notice'>You modify the time delay. It's set for [DisplayTimeText(det_time)].</span>")
 
 /obj/item/grenade/attack_paw(mob/user)
 	return attack_hand(user)
