@@ -54,6 +54,11 @@
 			..()
 
 /obj/item/grenade/chem_grenade/attackby(obj/item/I, mob/user, params)
+	if(I.tool_behaviour == TOOL_MULTITOOL && stage == READY && !nadeassembly)
+		var/newtime = text2num(stripped_input(user, "Please enter a new detonation time", name))
+		if (newtime != null && user.canUseTopic(src, BE_CLOSE))
+			switch_det_time(user, newtime)
+		return
 	if(I.tool_behaviour == TOOL_SCREWDRIVER)
 		if(stage == WIRED)
 			if(beakers.len)
@@ -63,8 +68,7 @@
 			else
 				to_chat(user, "<span class='warning'>You need to add at least one beaker before locking the [initial(name)] assembly!</span>")
 		else if(stage == READY && !nadeassembly)
-			det_time = det_time == 50 ? 30 : 50	//toggle between 30 and 50
-			to_chat(user, "<span class='notice'>You modify the time delay. It's set for [DisplayTimeText(det_time)].</span>")
+			change_det_time(user)
 		else if(stage == EMPTY)
 			to_chat(user, "<span class='warning'>You need to add an activation mechanism!</span>")
 
