@@ -790,24 +790,31 @@
 
 /mob/living/silicon/robot/modules/medical
 	set_module = /obj/item/robot_module/medical
+	icon_state = "medical"
 
 /mob/living/silicon/robot/modules/engineering
 	set_module = /obj/item/robot_module/engineering
+	icon_state = "engineer"
 
 /mob/living/silicon/robot/modules/security
 	set_module = /obj/item/robot_module/security
+	icon_state = "sec"
 
 /mob/living/silicon/robot/modules/clown
 	set_module = /obj/item/robot_module/clown
+	icon_state = "clown"
 
 /mob/living/silicon/robot/modules/peacekeeper
 	set_module = /obj/item/robot_module/peacekeeper
+	icon_state = "peace"
 
 /mob/living/silicon/robot/modules/miner
 	set_module = /obj/item/robot_module/miner
+	icon_state = "miner"
 
 /mob/living/silicon/robot/modules/janitor
 	set_module = /obj/item/robot_module/janitor
+	icon_state = "janitor"
 
 /mob/living/silicon/robot/modules/syndicate
 	icon_state = "synd_sec"
@@ -1172,7 +1179,7 @@
 
 /mob/living/silicon/robot/unbuckle_mob(mob/user, force=FALSE)
 	if(iscarbon(user))
-		GET_COMPONENT(riding_datum, /datum/component/riding)
+		var/datum/component/riding/riding_datum = GetComponent(/datum/component/riding)
 		if(istype(riding_datum))
 			riding_datum.unequip_buckle_inhands(user)
 			riding_datum.restore_position(user)
