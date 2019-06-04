@@ -19,7 +19,6 @@
 	pin = null
 	bolt_type = BOLT_TYPE_LOCKING
 	mag_display = TRUE
-	tac_reloads = TRUE
 
 /obj/item/gun/ballistic/automatic/proto/unrestricted
 	pin = /obj/item/firing_pin
@@ -70,7 +69,6 @@
 	mag_display = TRUE
 	mag_display_ammo = TRUE
 	empty_indicator = TRUE
-	tac_reloads = TRUE
 
 /obj/item/gun/ballistic/automatic/c20r/unrestricted
 	pin = /obj/item/firing_pin
@@ -104,6 +102,7 @@
 	burst_size = 2
 	bolt_type = BOLT_TYPE_OPEN
 	mag_display = TRUE
+	rack_sound = "sound/weapons/pistollock.ogg"
 
 /obj/item/gun/ballistic/automatic/m90
 	name = "\improper M-90gl Carbine"
@@ -225,6 +224,7 @@
 	bolt_type = BOLT_TYPE_OPEN
 	mag_display = TRUE
 	mag_display_ammo = TRUE
+	tac_reloads = FALSE
 	fire_sound = 'sound/weapons/rifleshot.ogg'
 	rack_sound = 'sound/weapons/chunkyrack.ogg'
 
@@ -234,7 +234,7 @@
 
 /obj/item/gun/ballistic/automatic/l6_saw/examine(mob/user)
 	..()
-	to_chat(user, "<b>ctrl + click</b> to [cover_open ? "close" : "open"] the dust cover.")
+	to_chat(user, "<b>alt + click</b> to [cover_open ? "close" : "open"] the dust cover.")
 	if(cover_open && magazine)
 		to_chat(user, "<span class='notice'>It seems like you could use an <b>empty hand</b> to remove the magazine.</span>")
 
@@ -249,7 +249,7 @@
 	update_icon()
 
 
-/obj/item/gun/ballistic/automatic/l6_saw/update_icon() 
+/obj/item/gun/ballistic/automatic/l6_saw/update_icon()
 	. = ..()
 	add_overlay("l6_door_[cover_open ? "open" : "closed"]")
 
@@ -268,7 +268,7 @@
 		..()
 		return
 	if (!cover_open)
-		to_chat("<span class='warning'>[src]'s cover is closed! Open it before trying to remove the magazine!</span>")
+		to_chat(user, "<span class='warning'>[src]'s cover is closed! Open it before trying to remove the magazine!</span>")
 		return
 	..()
 
