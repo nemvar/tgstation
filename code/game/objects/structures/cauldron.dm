@@ -1,5 +1,7 @@
+#define CAULDRON_LAYER_DIFF       0.5
+
 /obj/structure/cauldron
-	name = "Cauldron"
+	name = "cauldron"
 	desc = "A large cauldron."
 	icon = 'icons/obj/cauldron.dmi'
 	icon_state = "cauldron_off"
@@ -10,10 +12,12 @@
 	max_buckled_mobs = 1
 	buckle_lying = FALSE
 	buckle_prevents_pull = TRUE
+	layer = HIGH_OBJ_LAYER
 	var/burning = FALSE
 
 /obj/structure/cauldron/Initialize()
 	create_reagents(200, OPENCONTAINER)
+	update_icon()
 	. = ..()
 
 /obj/structure/cauldron/attackby(obj/item/W, mob/user, params)
@@ -27,11 +31,13 @@
 		buckle_mob(L)
 
 /obj/structure/cauldron/post_buckle_mob(mob/living/M)
-	M.pixel_y += 7
+	M.pixel_y += 5
+	M.layer -= CAULDRON_LAYER_DIFF
 	..()
 
-/obj/structure/cauldron/post_unbuckle_mob(mob/living/buckled_mob)
-	buckled_mob.pixel_y -= 7
+/obj/structure/cauldron/post_unbuckle_mob(mob/living/M)
+	M.pixel_y -= 5
+	M.layer += CAULDRON_LAYER_DIFF
 	..()
 
 /obj/structure/cauldron/attack_hand(mob/living/user)
@@ -80,12 +86,20 @@
 	if(burning)
 		icon_state = "cauldron_on"
 
+	var/mutable_appearance/behind = mutable_appearance(icon, "cauldron_behind", layer = NOT_HIGH_OBJ_LAYER)
+	add_overlay(behind)
+
 	var/colour = mix_color_from_reagents(reagents.reagent_list)
 	if(reagents.total_volume >= 50)
-		var/mutable_appearance/water = mutable_appearance(icon, "water")
-		water.color = colour
-		add_overlay(water)
+		var/mutable_appearance/water_behind = mutable_appearance(icon, "water_behind", layer = NOT_HIGH_OBJ_LAYER)
+		water_behind.color = colour
+		add_overlay(water_behind)
+		var/mutable_appearance/water_front = mutable_appearance(icon, "water_front", layer = HIGH_OBJ_LAYER)
+		water_front.color = colour
+		add_overlay(water_front)
 		/*if(reagents.chem_temp > 374)
 			var/mutable_appearance/bubbles = mutable_appearance(icon, "bubbles")
 			bubbles.color = colour
 			add_overlay(bubbles)*/
+
+#undef CAULDRON_LAYER_DIFF
