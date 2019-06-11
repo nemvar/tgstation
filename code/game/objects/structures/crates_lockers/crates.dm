@@ -32,9 +32,12 @@
 	return !density
 
 /obj/structure/closet/crate/update_icon()
-	icon_state = "[initial(icon_state)][opened ? "open" : ""]"
-
+	if(opened)
+		layer = ABOVE_MOB_LAYER
+	else
+		layer = initial(layer)
 	cut_overlays()
+	add_overlay(mutable_appearance(icon, "[initial(icon_state)][opened ? "open" : "closed"]", BELOW_OBJ_LAYER)) //look at my boy
 	if(manifest)
 		add_overlay("manifest")
 

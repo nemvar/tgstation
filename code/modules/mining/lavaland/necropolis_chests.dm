@@ -9,6 +9,16 @@
 	icon_state = "necrocrate"
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 
+/obj/structure/closet/crate/necropolis/update_icon()
+	cut_overlays()
+	if(opened)
+		layer = ABOVE_MOB_LAYER
+		icon_state = "[initial(icon_state)]open"
+		add_overlay(mutable_appearance(icon, "[icon_state]1", BELOW_OBJ_LAYER))
+	else
+		layer = initial(layer)
+		icon_state = initial(icon_state)
+
 /obj/structure/closet/crate/necropolis/tendril
 	desc = "It's watching you suspiciously."
 
