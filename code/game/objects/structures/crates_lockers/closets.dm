@@ -110,7 +110,7 @@
 		if(closet != src && !closet.wall_mounted)
 			return FALSE
 	for(var/mob/living/L in T)
-		if(L.anchored || horizontal && L.mob_size > MOB_SIZE_TINY && L.density)
+		if((L.anchored || horizontal && L.mob_size > MOB_SIZE_TINY && L.density) && !buckled_mobs.len)
 			if(user)
 				to_chat(user, "<span class='danger'>There's something too large in [src], preventing it from closing.</span>")
 			return FALSE

@@ -12,8 +12,11 @@
 	climbable = TRUE
 	climb_time = 10 //real fast, because let's be honest stepping into or onto a crate is easy
 	climb_stun = 0 //climbing onto crates isn't hard, guys
+	buckle_lying = 0
 	delivery_icon = "deliverycrate"
+	layer = OBJ_LAYER
 	var/obj/item/paper/fluff/jobs/cargo/manifest/manifest
+	var/y_offset = 6
 
 /obj/structure/closet/crate/Initialize()
 	. = ..()
@@ -33,7 +36,7 @@
 
 /obj/structure/closet/crate/update_icon()
 	if(opened)
-		layer = ABOVE_MOB_LAYER
+		layer = BELOW_OBJ_LAYER
 	else
 		layer = initial(layer)
 	cut_overlays()
@@ -50,12 +53,33 @@
 
 /obj/structure/closet/crate/open(mob/living/user)
 	. = ..()
-	if(. && manifest)
-		to_chat(user, "<span class='notice'>The manifest is torn off [src].</span>")
-		playsound(src, 'sound/items/poster_ripped.ogg', 75, 1)
-		manifest.forceMove(get_turf(src))
-		manifest = null
-		update_icon()
+	if(.)
+		can_buckle = TRUE
+		if(manifest)
+			to_chat(user, "<span class='notice'>The manifest is torn off [src].</span>")
+			playsound(src, 'sound/items/poster_ripped.ogg', 75, 1)
+			manifest.forceMove(get_turf(src))
+			manifest = null
+			update_icon()
+
+/obj/structure/closet/crate/close(mob/living/user)
+	. = ..()
+	if(.)
+		can_buckle = FALSE
+		layer = initial(layer)
+
+/obj/structure/closet/crate/post_buckle_mob(mob/living/M)
+	..()
+	M.pixel_y += y_offset
+	M.setDir(2)
+	density = FALSE
+	layer = ABOVE_MOB_LAYER //wrong way around, I need to move the crate up, not the mob down.
+
+/obj/structure/closet/crate/post_unbuckle_mob(mob/living/M)
+	..()
+	M.pixel_y -= y_offset
+	layer = initial(layer)
+	density = initial(density)
 
 /obj/structure/closet/crate/proc/tear_manifest(mob/user)
 	to_chat(user, "<span class='notice'>You tear the manifest off of [src].</span>")
@@ -75,6 +99,7 @@
 	max_integrity = 70
 	material_drop = /obj/item/stack/sheet/mineral/wood
 	material_drop_amount = 5
+	y_offset = 2
 
 /obj/structure/closet/crate/internals
 	desc = "An internals crate."
@@ -85,6 +110,7 @@
 	desc = "A heavy, metal trashcart with wheels."
 	name = "trash cart"
 	icon_state = "trashcart"
+	y_offset = 4
 
 /obj/structure/closet/crate/medical
 	desc = "A medical crate."
