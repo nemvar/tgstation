@@ -14,7 +14,7 @@
 	climb_stun = 0 //climbing onto crates isn't hard, guys
 	buckle_lying = 0
 	delivery_icon = "deliverycrate"
-	layer = OBJ_LAYER
+	layer = BELOW_OBJ_LAYER
 	var/obj/item/paper/fluff/jobs/cargo/manifest/manifest
 	var/y_offset = 6
 
@@ -35,10 +35,6 @@
 	return !density
 
 /obj/structure/closet/crate/update_icon()
-	if(opened)
-		layer = BELOW_OBJ_LAYER
-	else
-		layer = initial(layer)
 	cut_overlays()
 	add_overlay(mutable_appearance(icon, "[initial(icon_state)][opened ? "open" : "closed"]", BELOW_OBJ_LAYER)) //look at my boy
 	if(manifest)
@@ -66,20 +62,28 @@
 	. = ..()
 	if(.)
 		can_buckle = FALSE
-		layer = initial(layer)
+		layer = initial(layer) //futureproofing
 
 /obj/structure/closet/crate/post_buckle_mob(mob/living/M)
 	..()
 	M.pixel_y += y_offset
 	M.setDir(2)
 	density = FALSE
-	layer = ABOVE_MOB_LAYER //wrong way around, I need to move the crate up, not the mob down.
+	layer = ABOVE_MOB_LAYER
 
 /obj/structure/closet/crate/post_unbuckle_mob(mob/living/M)
 	..()
-	M.pixel_y -= y_offset
+	if(buckle_lying != -1) //getting back up already resets pixel_y
+		M.pixel_y -= y_offset
 	layer = initial(layer)
 	density = initial(density)
+	if(pulledby in buckled_mobs)
+		pulledby.stop_pulling()
+
+/obj/structure/closet/crate/can_be_pulled(user, grab_state, force)
+	. = ..()
+	if(pulledby in buckled_mobs)
+		return FALSE
 
 /obj/structure/closet/crate/proc/tear_manifest(mob/user)
 	to_chat(user, "<span class='notice'>You tear the manifest off of [src].</span>")
@@ -99,7 +103,8 @@
 	max_integrity = 70
 	material_drop = /obj/item/stack/sheet/mineral/wood
 	material_drop_amount = 5
-	y_offset = 2
+	buckle_lying = -1
+	y_offset = 0
 
 /obj/structure/closet/crate/internals
 	desc = "An internals crate."
