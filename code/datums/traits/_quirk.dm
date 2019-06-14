@@ -40,20 +40,21 @@
 	return ..()
 
 /datum/quirk/proc/transfer_mob(mob/living/to_mob)
+	var/mob/living/old_mob = quirk_holder
 	quirk_holder.roundstart_quirks -= src
 	to_mob.roundstart_quirks += src
 	if(mob_trait)
 		REMOVE_TRAIT(quirk_holder, mob_trait, ROUNDSTART_TRAIT)
 		ADD_TRAIT(to_mob, mob_trait, ROUNDSTART_TRAIT)
 	quirk_holder = to_mob
-	on_transfer()
+	on_transfer(to_mob, old_mob)
 
 /datum/quirk/proc/add() //special "on add" effects
 /datum/quirk/proc/on_spawn() //these should only trigger when the character is being created for the first time, i.e. roundstart/latejoin
 /datum/quirk/proc/remove() //special "on remove" effects
 /datum/quirk/proc/on_process() //process() has some special checks, so this is the actual process
 /datum/quirk/proc/post_add() //for text, disclaimers etc. given after you spawn in with the trait
-/datum/quirk/proc/on_transfer() //code called when the trait is transferred to a new mob
+/datum/quirk/proc/on_transfer(mob/living/new_mob, mob/living/old_mob) //code called when the trait is transferred to a new mob
 
 /datum/quirk/proc/clone_data() //return additional data that should be remembered by cloning
 /datum/quirk/proc/on_clone(data) //create the quirk from clone data

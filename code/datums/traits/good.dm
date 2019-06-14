@@ -46,6 +46,40 @@
 	lose_text = "<span class='danger'>You feel isolated from others.</span>"
 	medical_record_text = "Patient is highly perceptive of and sensitive to social cues, or may possibly have ESP. Further testing needed."
 
+/datum/quirk/empath/add()
+	RegisterSignal(quirk_holder, COMSIG_MOB_EXAMINATE, .proc/on_examinate)
+
+/datum/quirk/empath/remove()
+	UnregisterSignal(quirk_holder, COMSIG_MOB_EXAMINATE)
+
+/datum/quirk/empath/on_transfer(mob/living/new_mob, mob/living/old_mob)
+	UnregisterSignal(old_mob, COMSIG_MOB_EXAMINATE)
+	RegisterSignal(new_mob, COMSIG_MOB_EXAMINATE, .proc/on_examinate)
+
+/datum/quirk/empath/proc/on_examinate(datum/source, atom/A)
+	if(istype(A, /mob/living/carbon/human) && quirk_holder != A)
+		var/mob/living/carbon/human/H = A
+		if(H.stat != DEAD && !HAS_TRAIT(H, TRAIT_FAKEDEATH) && H.stat != UNCONSCIOUS)
+			var/msg
+			var/t_He = H.p_they(TRUE)
+			var/t_s = H.p_s()
+			if (H.a_intent != INTENT_HELP)
+				msg += "[t_He] seem[t_s] to be on guard.\n"
+			if (H.getOxyLoss() >= 10)
+				msg += "[t_He] seem[t_s] winded.\n"
+			if (H.getToxLoss() >= 10)
+				msg += "[t_He] seem[t_s] sickly.\n"
+			var/datum/component/mood/mood = H.GetComponent(/datum/component/mood) //OOF, OUCH
+			if(mood.sanity <= SANITY_DISTURBED)
+				msg += "[t_He] seem[t_s] distressed.\n"
+				SEND_SIGNAL(quirk_holder, COMSIG_ADD_MOOD_EVENT, "empath", /datum/mood_event/sad_empath, H)
+			if (HAS_TRAIT(H, TRAIT_BLIND))
+				msg += "[t_He] appear[t_s] to be staring off into space.\n"
+			if (HAS_TRAIT(H, TRAIT_DEAF))
+				msg += "[t_He] appear[t_s] to not be responding to noises.\n"
+			if(msg)
+				to_chat(quirk_holder, "<span class = 'warning'>[msg]</span><span class = 'info'>*---------*</span>")
+
 /datum/quirk/freerunning
 	name = "Freerunning"
 	desc = "You're great at quick moves! You can climb tables more quickly."
@@ -161,6 +195,23 @@
 	var/mob/living/carbon/human/H = quirk_holder
 	H.equip_to_slot_or_del(new /obj/item/storage/fancy/candle_box(H), SLOT_IN_BACKPACK)
 	H.equip_to_slot_or_del(new /obj/item/storage/box/matches(H), SLOT_IN_BACKPACK)
+
+/datum/quirk/spiritual/add()
+	RegisterSignal(quirk_holder, COMSIG_MOB_EXAMINATE, .proc/on_examinate)
+
+/datum/quirk/spiritual/remove()
+	UnregisterSignal(quirk_holder, COMSIG_MOB_EXAMINATE)
+
+/datum/quirk/spiritual/on_transfer(mob/living/new_mob, mob/living/old_mob) //as far as I can tell, nothing calls this, better safe than sorry.
+	UnregisterSignal(old_mob, COMSIG_MOB_EXAMINATE)
+	RegisterSignal(new_mob, COMSIG_MOB_EXAMINATE, .proc/on_examinate)
+
+/datum/quirk/spiritual/proc/on_examinate(datum/source, atom/A)
+	if(istype(A, /mob/living/carbon/human) && quirk_holder != A)
+		var/mob/living/carbon/human/H = A
+		if(H.stat != DEAD && !HAS_TRAIT(H, TRAIT_FAKEDEATH) && H.mind?.isholy)
+			to_chat(quirk_holder, "<span class='notice'>[H.p_they(TRUE)] [H.p_have()] a <B>holy</B> aura about [H.p_them()].</span>\n<span class = 'info'>*---------*</span>")
+			SEND_SIGNAL(quirk_holder, COMSIG_ADD_MOOD_EVENT, "religious_comfort", /datum/mood_event/religiously_comforted)
 
 /datum/quirk/tagger
 	name = "Tagger"
