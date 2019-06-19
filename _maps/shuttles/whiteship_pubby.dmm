@@ -122,6 +122,7 @@
 /obj/structure/window/reinforced,
 /obj/structure/table/glass,
 /obj/item/clothing/shoes/magboots,
+/obj/effect/spawner/lootdrop/high_value_circuit,
 /turf/open/floor/plating/abductor,
 /area/shuttle/abandoned)
 "s" = (

@@ -1319,10 +1319,7 @@
 /area/ruin/space/has_grav/deepstorage/armory)
 "db" = (
 /obj/structure/table,
-/obj/item/healthanalyzer,
-/obj/item/healthanalyzer,
-/obj/item/stack/medical/gauze,
-/obj/item/stack/medical/gauze,
+/obj/effect/spawner/lootdrop/high_value_circuit,
 /turf/open/floor/plasteel/dark,
 /area/ruin/space/has_grav/deepstorage/armory)
 "dc" = (
@@ -2892,9 +2889,7 @@
 /turf/open/floor/plating/airless,
 /area/ruin/space/has_grav/deepstorage/power)
 "gw" = (
-/obj/machinery/sleeper{
-	dir = 4
-	},
+/obj/machinery/stasis,
 /turf/open/floor/plasteel/white,
 /area/ruin/space/has_grav/deepstorage/dorm)
 "gx" = (

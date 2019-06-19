@@ -107,6 +107,21 @@
 	loot = list(pick(soups) = 1,pick(salads) = 1,pick(mains) = 1)
 	. = ..()
 
+/obj/effect/spawner/lootdrop/high_value_circuit
+	name = "high value circuit"
+	loot = list(
+			/obj/item/circuitboard/machine/clonepod/experimental = 1,
+			/obj/item/circuitboard/machine/sleeper = 4,
+			/obj/item/circuitboard/machine/protolathe = 4,
+			/obj/item/circuitboard/machine/circuit_imprinter = 1,
+			/obj/item/circuitboard/machine/deep_fryer = 1,
+			/obj/item/circuitboard/machine/mechfab = 1,
+			/obj/item/circuitboard/computer/prototype_cloning = 1,
+			/obj/item/circuitboard/machine/chem_dispenser = 1,
+			/obj/item/circuitboard/machine/autolathe = 1,
+			"" = 8
+			)
+
 /obj/effect/spawner/lootdrop/maintenance
 	name = "maintenance loot spawner"
 	// see code/_globalvars/lists/maintenance_loot.dm for loot table

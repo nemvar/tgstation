@@ -226,12 +226,12 @@
 "ku" = (
 /obj/structure/rack,
 /obj/item/storage/bag/money/vault,
+/obj/effect/turf_decal/tile/blue{
+	dir = 4
+	},
 /mob/living/simple_animal/parrot{
 	faction = list("pirate");
 	name = "Pegwing"
-	},
-/obj/effect/turf_decal/tile/blue{
-	dir = 4
 	},
 /turf/open/floor/plasteel/dark,
 /area/shuttle/caravan/pirate)
@@ -503,10 +503,10 @@
 /turf/open/floor/plasteel/dark,
 /area/shuttle/caravan/pirate)
 "tM" = (
+/obj/effect/decal/cleanable/dirt,
 /mob/living/simple_animal/hostile/pirate/ranged{
 	environment_smash = 0
 	},
-/obj/effect/decal/cleanable/dirt,
 /turf/open/floor/plasteel,
 /area/shuttle/caravan/pirate)
 "ul" = (
@@ -745,9 +745,6 @@
 	pixel_y = -30;
 	req_access = null
 	},
-/mob/living/simple_animal/hostile/pirate/ranged{
-	environment_smash = 0
-	},
 /obj/effect/turf_decal/tile/neutral{
 	dir = 1
 	},
@@ -757,6 +754,9 @@
 	},
 /obj/effect/turf_decal/tile/neutral{
 	dir = 8
+	},
+/mob/living/simple_animal/hostile/pirate/ranged{
+	environment_smash = 0
 	},
 /turf/open/floor/plasteel/dark,
 /area/shuttle/caravan/pirate)
@@ -867,14 +867,12 @@
 /turf/template_noop,
 /area/template_noop)
 "Kd" = (
-/obj/machinery/sleeper{
-	dir = 1
-	},
 /obj/effect/turf_decal/delivery,
 /obj/machinery/airalarm/all_access{
 	dir = 1;
 	pixel_y = -24
 	},
+/obj/machinery/stasis,
 /turf/open/floor/plasteel/white,
 /area/shuttle/caravan/pirate)
 "Ku" = (

@@ -1776,10 +1776,7 @@
 /obj/effect/decal/cleanable/dirt/dust,
 /obj/effect/decal/cleanable/dirt/dust,
 /obj/structure/closet/crate,
-/obj/effect/spawner/lootdrop/maintenance{
-	lootcount = 3;
-	name = "3maintenance loot spawner"
-	},
+/obj/effect/spawner/lootdrop/high_value_circuit,
 /turf/open/floor/plasteel/dark,
 /area/shuttle/abandoned/cargo)
 "cz" = (

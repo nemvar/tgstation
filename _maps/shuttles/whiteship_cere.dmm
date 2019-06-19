@@ -412,6 +412,18 @@
 /obj/effect/decal/cleanable/dirt/dust,
 /turf/open/floor/mineral/titanium/blue,
 /area/shuttle/abandoned)
+"hX" = (
+/obj/effect/turf_decal/delivery{
+	dir = 1
+	},
+/obj/effect/decal/cleanable/dirt/dust,
+/obj/structure/closet/crate{
+	icon_state = "crateopen";
+	name = "spare equipment crate"
+	},
+/obj/effect/spawner/lootdrop/high_value_circuit,
+/turf/open/floor/mineral/titanium/yellow,
+/area/shuttle/abandoned)
 
 (1,1,1) = {"
 aa
@@ -545,7 +557,7 @@ ag
 ag
 ag
 aq
-av
+hX
 au
 aG
 aG

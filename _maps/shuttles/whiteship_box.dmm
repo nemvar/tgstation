@@ -487,6 +487,7 @@
 /obj/effect/turf_decal/tile/neutral{
 	dir = 8
 	},
+/obj/effect/spawner/lootdrop/high_value_circuit,
 /turf/open/floor/plasteel,
 /area/shuttle/abandoned/crew)
 "aM" = (
@@ -954,7 +955,6 @@
 /area/shuttle/abandoned/medbay)
 "bB" = (
 /obj/effect/decal/cleanable/dirt/dust,
-/obj/machinery/sleeper,
 /obj/effect/turf_decal/delivery,
 /obj/machinery/light/small/built{
 	dir = 8
@@ -962,6 +962,7 @@
 /obj/machinery/firealarm{
 	pixel_y = 24
 	},
+/obj/machinery/stasis,
 /turf/open/floor/plasteel,
 /area/shuttle/abandoned/medbay)
 "bC" = (
@@ -1297,13 +1298,11 @@
 "cf" = (
 /obj/effect/decal/cleanable/dirt/dust,
 /obj/effect/decal/cleanable/dirt/dust,
-/obj/machinery/sleeper{
-	dir = 1
-	},
 /obj/effect/turf_decal/delivery,
 /obj/machinery/light/small{
 	dir = 8
 	},
+/obj/machinery/stasis,
 /turf/open/floor/plasteel,
 /area/shuttle/abandoned/medbay)
 "cg" = (
