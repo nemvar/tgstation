@@ -275,3 +275,71 @@
 
 /obj/effect/gateway/singularity_pull()
 	return
+
+/obj/structure/bed/cultcocoon
+	var/obj/item/linkstone/stone
+
+/obj/structure/bed/cultcocoon/buckle_mob(mob/living/M, force = FALSE, check_loc = TRUE)
+	if(M.stat != DEAD || iscultist(M))
+		return FALSE
+	. = ..()
+
+/obj/structure/bed/cultcocoon/post_buckle_mob(mob/living/M)
+	if(HAS_TRAIT(M, TRAIT_HUSK))
+		return
+	if(!ishuman(M))
+		return
+	if(!M.mind)
+		return
+	if(M.mind.damnation_type || M.suiciding)
+		return
+	if(!M.mind.active)
+		var/mob/dead/observer/G = M.mind.get_ghost()
+		if(!G || G.suiciding)
+			return
+	stone = new(get_turf(src))
+	stone.linkedmind = M.mind
+	stone.owner = M
+
+/obj/structure/bed/cultcocoon/post_unbuckle_mob(mob/living/M)
+	qdel(stone)
+
+/obj/structure/bed/cultcocoon/user_buckle_mob(mob/living/M, mob/user, check_loc = TRUE)
+	if(!iscultist(user))
+		return FALSE
+	. = ..()
+
+/obj/structure/bed/cultcocoon/user_unbuckle_mob(mob/living/M, mob/user)
+	if(iscultist(user) && !QDELETED(stone))
+		return FALSE
+	. = ..()
+
+/obj/structure/cultconstructshell
+	name = "empty shell"
+	icon = 'icons/obj/wizard.dmi'
+	icon_state = "construct-cult"
+	desc = "A wicked machine used by those skilled in blood magic. It is inactive."
+	density = FALSE
+
+/obj/structure/cultconstructshell/attackby(obj/item/O, mob/user, params)
+	if(iscultist(user) && istype(O, /obj/item/linkstone))
+		var/obj/item/linkstone/ls = O
+		var/mob/living/simple_animal/hostile/construct/construct
+		var/constructtype = alert(user, "Please choose which type of construct you wish to create.",,"Juggernaut","Wraith","Artificer")
+		if(!user.canUseTopic(src, BE_CLOSE))
+			return
+		switch(contructtype)
+			if("Juggernaut")
+				construct = new /mob/living/simple_animal/hostile/construct/armored(loc)
+			if("Wraith")
+				construct = new /mob/living/simple_animal/hostile/construct/wraith(loc)
+			if("Artificer")
+				construct = new /mob/living/simple_animal/hostile/construct/builder(loc)
+		if(construct)
+			ls.linkedmind.transfer_to(construct)
+			construct.grab_ghost()
+			ls.linkedmind.add_antag_datum(/datum/antagonist/cult)
+			ls.forceMove(construct)
+			qdel(src)
+			return
+	. = ..()

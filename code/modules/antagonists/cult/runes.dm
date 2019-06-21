@@ -226,9 +226,9 @@ structure_check() searches for nearby cultist structures required for the invoca
 		else if(is_convertable)
 			do_convert(L, invokers)
 	else
-		invocation = "Barhah hra zar'garis!"
-		..()
-		do_sacrifice(L, invokers)
+		if(do_sacrifice(L, invokers))
+			invocation = "Barhah hra zar'garis!"
+			..()
 	animate(src, color = oldcolor, time = 5)
 	addtimer(CALLBACK(src, /atom/proc/update_atom_colour), 5)
 	Cult_team.check_size() // Triggers the eye glow or aura effects if the cult has grown large enough relative to the crew
@@ -273,11 +273,13 @@ structure_check() searches for nearby cultist structures required for the invoca
 		return FALSE
 	var/datum/antagonist/cult/C = first_invoker.mind.has_antag_datum(/datum/antagonist/cult,TRUE)
 	if(!C)
-		return
+		return FALSE
 
+	if(ishuman(sacrificial) && !C.cult_team.is_sacrifice_target(sacrificial.mind))
+		return FALSE
 
 	var/big_sac = FALSE
-	if((((ishuman(sacrificial) || iscyborg(sacrificial)) && sacrificial.stat != DEAD) || C.cult_team.is_sacrifice_target(sacrificial.mind)) && invokers.len < 3)
+	if(((iscyborg(sacrificial) && sacrificial.stat != DEAD) || C.cult_team.is_sacrifice_target(sacrificial.mind)) && invokers.len < 3)
 		for(var/M in invokers)
 			to_chat(M, "<span class='cult italic'>[sacrificial] is too greatly linked to the world! You need three acolytes!</span>")
 		log_game("Offer rune failed - not enough acolytes and target is living or sac target")

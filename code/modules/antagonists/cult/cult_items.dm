@@ -1006,3 +1006,21 @@
 					throw_at(D.thrower, 7, 1, null)
 	else
 		..()
+
+/obj/item/linkstone
+	name = "Linking Stone"
+	desc = "This stone is used to link a soul to a construct"
+	icon = 'icons/obj/wizard.dmi'
+	icon_state = "soulstone2"
+	var/datum/mind/linkedmind
+	var/mob/living/carbon/human/owner
+
+/obj/item/linkstone/Destroy()
+	new /obj/effect/temp_visual/cult/sparks(get_turf(src))
+	if(linkedmind)
+		linkedmind.remove_antag_datum(/datum/antagonist/cult)
+		if(owner)
+			linkedmind.transfer_to(owner)
+			owner.get_ghost()
+			owner.become_husk(CULT_TRAIT)
+	. = ..()
