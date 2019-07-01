@@ -449,7 +449,7 @@
 		attack_self(user)
 
 /obj/item/toy/prize/suicide_act(mob/living/user)
-	user.visible_message("<span class='suicide'>[user] is holding \the [src] above [user.p_them()]self and drops it on her head! It looks like [user.p_theyre()] trying to commit suicide!</span>")
+	user.visible_message("<span class='suicide'>[user] is holding \the [src] above [user.p_them()]self and drops it on [user.p_their()] head! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	user.apply_damage(9999, BRUTE, BODY_ZONE_HEAD)
 	if(!quiet)
 		playsound(user, 'sound/mecha/mechstep.ogg', 20, 1)
