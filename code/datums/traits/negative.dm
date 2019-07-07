@@ -501,6 +501,7 @@
 	medical_record_text = "Patient is a current smoker."
 	reagent_type = /datum/reagent/drug/nicotine
 	accessory_type = /obj/item/lighter/greyscale
+	var/cig_type = /obj/item/clothing/mask/cigarette
 
 /datum/quirk/junkie/smoker/on_spawn()
 	drug_container_type = pick(/obj/item/storage/fancy/cigarettes,
@@ -513,6 +514,8 @@
 		/obj/item/storage/fancy/cigarettes/cigars/cohiba,
 		/obj/item/storage/fancy/cigarettes/cigars/havana)
 	. = ..()
+	var/obj/item/storage/fancy/cigarettes/C = drug_instance //I hate life.
+	cig_type = C.spawn_type
 
 /datum/quirk/junkie/smoker/announce_drugs()
 	to_chat(quirk_holder, "<span class='boldnotice'>There is a [drug_instance.name] [where_drug], and a lighter [where_accessory]. Make sure you get your favorite brand when you run out.</span>")
@@ -523,8 +526,7 @@
 	var/mob/living/carbon/human/H = quirk_holder
 	var/obj/item/I = H.get_item_by_slot(SLOT_WEAR_MASK)
 	if (istype(I, /obj/item/clothing/mask/cigarette))
-		var/obj/item/storage/fancy/cigarettes/C = drug_instance
-		if(istype(I, C.spawn_type))
+		if(istype(I, cig_type))
 			SEND_SIGNAL(quirk_holder, COMSIG_CLEAR_MOOD_EVENT, "wrong_cigs")
 			return
 		SEND_SIGNAL(quirk_holder, COMSIG_ADD_MOOD_EVENT, "wrong_cigs", /datum/mood_event/wrong_brand)
