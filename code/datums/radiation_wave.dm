@@ -32,7 +32,7 @@
 
 /datum/radiation_wave/process()
 	master_turf = get_step(master_turf, move_dir)
-	if(!master_turf)
+	if(!istype(master_turf))
 		qdel(src)
 		return
 	steps++
