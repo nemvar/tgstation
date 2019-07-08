@@ -9,6 +9,7 @@
 		/obj/docking_port,
 		/atom/movable/lighting_object,
 		/obj/item/projectile,
+		/obj/screen,
 		))
 	var/list/processing_list = list(location)
 	. = list()
