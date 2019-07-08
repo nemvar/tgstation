@@ -9,14 +9,13 @@
 		/obj/docking_port,
 		/atom/movable/lighting_object,
 		/obj/item/projectile,
-		/obj/screen,
 		))
 	var/list/processing_list = list(location)
 	. = list()
 	while(processing_list.len)
 		var/atom/thing = processing_list[1]
 		processing_list -= thing
-		if(ignored_things[thing.type])
+		if(is_type_in_typecache(thing, ignored_things))
 			continue
 		. += thing
 		if((thing.rad_flags & RAD_PROTECT_CONTENTS) || (SEND_SIGNAL(thing, COMSIG_ATOM_RAD_PROBE) & COMPONENT_BLOCK_RADIATION))
