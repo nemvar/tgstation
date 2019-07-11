@@ -28,7 +28,6 @@
 	var/can_move = 0 //time of next allowed movement
 	var/mob/living/carbon/occupant = null
 	var/step_in = 10 //make a step in step_in/10 sec.
-	var/dir_in = 2//What direction will the mech face when entered/powered on? Defaults to South.
 	var/normal_step_energy_drain = 10 //How much energy the mech will consume each time it moves. This variable is a backup for when leg actuators affect the energy drain.
 	var/step_energy_drain = 10
 	var/melee_energy_drain = 15
@@ -98,27 +97,21 @@
 	var/datum/action/innate/mecha/mech_toggle_lights/lights_action = new
 	var/datum/action/innate/mecha/mech_view_stats/stats_action = new
 	var/datum/action/innate/mecha/mech_toggle_thrusters/thrusters_action = new
-	var/datum/action/innate/mecha/mech_defence_mode/defense_action = new
 	var/datum/action/innate/mecha/mech_overload_mode/overload_action = new
 	var/datum/effect_system/smoke_spread/smoke_system = new //not an action, but trigged by one
 	var/datum/action/innate/mecha/mech_smoke/smoke_action = new
 	var/datum/action/innate/mecha/mech_zoom/zoom_action = new
-	var/datum/action/innate/mecha/mech_switch_damtype/switch_damtype_action = new
-	var/datum/action/innate/mecha/mech_toggle_phasing/phasing_action = new
 	var/datum/action/innate/mecha/strafe/strafing_action = new
 
 	//Action vars
 	var/thrusters_active = FALSE
-	var/defence_mode = FALSE
-	var/defence_mode_deflect_chance = 35
 	var/leg_overload_mode = FALSE
 	var/leg_overload_coeff = 100
 	var/zoom_mode = FALSE
 	var/smoke = 5
 	var/smoke_ready = 1
 	var/smoke_cooldown = 100
-	var/phasing = FALSE
-	var/phasing_energy_drain = 200
+
 	var/phase_state = "" //icon_state when phasing
 	var/strafe = FALSE //If we are strafing
 
@@ -467,33 +460,8 @@
 
 
 /obj/mecha/proc/click_action(atom/target,mob/user,params)
-	if(!occupant || occupant != user )
+	if(!check_click_target_viability(target,user,params))
 		return
-	if(!locate(/turf) in list(target,target.loc)) // Prevents inventory from being drilled
-		return
-	if(completely_disabled)
-		return
-	if(is_currently_ejecting)
-		return
-	if(phasing)
-		occupant_message("Unable to interact with objects while phasing")
-		return
-	if(user.incapacitated())
-		return
-	if(state)
-		occupant_message("<span class='warning'>Maintenance protocols in effect.</span>")
-		return
-	if(!get_charge())
-		return
-	if(src == target)
-		return
-	var/dir_to_target = get_dir(src,target)
-	if(dir_to_target && !(dir_to_target & dir))//wrong direction
-		return
-	if(internal_damage & MECHA_INT_CONTROL_LOST)
-		target = safepick(view(3,target))
-		if(!target)
-			return
 
 	var/mob/living/L = user
 	if(!Adjacent(target))
@@ -518,6 +486,34 @@
 		melee_can_hit = 0
 		spawn(melee_cooldown)
 			melee_can_hit = 1
+
+///checks if the mech can interact with the atom. Checks for stuff like direction and occupant. Also generates error message for the mech.
+/obj/mecha/proc/check_click_target_viability(atom/target, mob/user, params)
+	if(!occupant || occupant != user )
+		return
+	if(!locate(/turf) in list(target,target.loc)) // Prevents inventory from being drilled
+		return
+	if(completely_disabled)
+		return
+	if(is_currently_ejecting)
+		return
+	if(user.incapacitated())
+		return
+	if(state)
+		occupant_message("<span class='warning'>Maintenance protocols in effect.</span>")
+		return
+	if(!get_charge())
+		return
+	if(src == target)
+		return
+	var/dir_to_target = get_dir(src,target)
+	if(dir_to_target && !(dir_to_target & dir))//wrong direction
+		return
+	if(internal_damage & MECHA_INT_CONTROL_LOST)
+		target = safepick(view(3,target))
+		if(!target)
+			return
+	return TRUE //FINALLY
 
 
 /obj/mecha/proc/range_action(atom/target)
@@ -577,14 +573,9 @@
 		return 0
 	if(!has_charge(step_energy_drain))
 		return 0
-	if(defence_mode)
-		if(world.time - last_message > 20)
-			occupant_message("<span class='danger'>Unable to move while in defence mode</span>")
-			last_message = world.time
-		return 0
 	if(zoom_mode)
 		if(world.time - last_message > 20)
-			occupant_message("Unable to move while in zoom mode.")
+			occupant_message("<span class='danger'>Unable to move while in zoom mode.</span>")
 			last_message = world.time
 		return 0
 
@@ -624,33 +615,22 @@
 	return result
 
 /obj/mecha/Bump(var/atom/obstacle)
-	if(phasing && get_charge() >= phasing_energy_drain && !throwing)
-		spawn()
-			if(can_move)
-				can_move = 0
-				if(phase_state)
-					flick(phase_state, src)
-				forceMove(get_step(src,dir))
-				use_power(phasing_energy_drain)
-				sleep(step_in*3)
-				can_move = 1
-	else
-		if(..()) //mech was thrown
-			return
-		if(bumpsmash && occupant) //Need a pilot to push the PUNCH button.
-			if(nextsmash < world.time)
-				obstacle.mech_melee_attack(src)
-				nextsmash = world.time + smashcooldown
-				if(!obstacle || obstacle.CanPass(src,get_step(src,dir)))
-					step(src,dir)
-		if(isobj(obstacle))
-			var/obj/O = obstacle
-			if(!O.anchored)
-				step(obstacle, dir)
-		else if(ismob(obstacle))
-			var/mob/M = obstacle
-			if(!M.anchored)
-				step(obstacle, dir)
+	if(..()) //mech was thrown
+		return
+	if(bumpsmash && occupant) //Need a pilot to push the PUNCH button.
+		if(nextsmash < world.time)
+			obstacle.mech_melee_attack(src)
+			nextsmash = world.time + smashcooldown
+			if(!obstacle || obstacle.CanPass(src,get_step(src,dir)))
+				step(src,dir)
+	if(isobj(obstacle))
+		var/obj/O = obstacle
+		if(!O.anchored)
+			step(obstacle, dir)
+	else if(ismob(obstacle))
+		var/mob/M = obstacle
+		if(!M.anchored)
+			step(obstacle, dir)
 
 
 
@@ -810,27 +790,6 @@
 		GrantActions(AI, !AI.can_dominate_mechs)
 
 
-//An actual AI (simple_animal mecha pilot) entering the mech
-/obj/mecha/proc/aimob_enter_mech(mob/living/simple_animal/hostile/syndicate/mecha_pilot/pilot_mob)
-	if(pilot_mob && pilot_mob.Adjacent(src))
-		if(occupant)
-			return
-		icon_state = initial(icon_state)
-		occupant = pilot_mob
-		pilot_mob.mecha = src
-		pilot_mob.forceMove(src)
-		GrantActions(pilot_mob)//needed for checks, and incase a badmin puts somebody in the mob
-
-/obj/mecha/proc/aimob_exit_mech(mob/living/simple_animal/hostile/syndicate/mecha_pilot/pilot_mob)
-	if(occupant == pilot_mob)
-		occupant = null
-	if(pilot_mob.mecha == src)
-		pilot_mob.mecha = null
-	icon_state = "[initial(icon_state)]-open"
-	pilot_mob.forceMove(get_turf(src))
-	RemoveActions(pilot_mob)
-
-
 /////////////////////////////////////
 ////////  Atmospheric stuff  ////////
 /////////////////////////////////////
@@ -920,7 +879,7 @@
 		forceMove(loc)
 		log_message("[H] moved in as pilot.", LOG_MECHA)
 		icon_state = initial(icon_state)
-		setDir(dir_in)
+		setDir(SOUTH)
 		playsound(src, 'sound/machines/windowdoor.ogg', 50, 1)
 		if(!internal_damage)
 			SEND_SOUND(occupant, sound('sound/mecha/nominal.ogg',volume=50))
@@ -976,7 +935,7 @@
 	brainmob.update_mouse_pointer()
 	icon_state = initial(icon_state)
 	update_icon()
-	setDir(dir_in)
+	setDir(SOUTH)
 	log_message("[mmi_as_oc] moved in as pilot.", LOG_MECHA)
 	if(!internal_damage)
 		SEND_SOUND(occupant, sound('sound/mecha/nominal.ogg',volume=50))
@@ -1048,7 +1007,7 @@
 			mmi.update_icon()
 			L.mobility_flags = NONE
 		icon_state = initial(icon_state)+"-open"
-		setDir(dir_in)
+		setDir(SOUTH)
 
 	if(L && L.client)
 		L.update_mouse_pointer()

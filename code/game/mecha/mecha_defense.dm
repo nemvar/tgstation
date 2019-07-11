@@ -141,7 +141,7 @@
 	if(A == occupant)
 		occupant = null
 		icon_state = initial(icon_state)+"-open"
-		setDir(dir_in)
+		setDir(SOUTH)
 
 /obj/mecha/emp_act(severity)
 	. = ..()

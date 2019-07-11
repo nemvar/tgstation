@@ -164,28 +164,6 @@
 		chassis.log_message("Toggled thrusters.", LOG_MECHA)
 		chassis.occupant_message("<font color='[chassis.thrusters_active ?"blue":"red"]'>Thrusters [chassis.thrusters_active ?"en":"dis"]abled.")
 
-
-/datum/action/innate/mecha/mech_defence_mode
-	name = "Toggle Defence Mode"
-	button_icon_state = "mech_defense_mode_off"
-
-/datum/action/innate/mecha/mech_defence_mode/Activate(forced_state = null)
-	if(!owner || !chassis || chassis.occupant != owner)
-		return
-	if(!isnull(forced_state))
-		chassis.defence_mode = forced_state
-	else
-		chassis.defence_mode = !chassis.defence_mode
-	button_icon_state = "mech_defense_mode_[chassis.defence_mode ? "on" : "off"]"
-	if(chassis.defence_mode)
-		chassis.deflect_chance = chassis.defence_mode_deflect_chance
-		chassis.occupant_message("<span class='notice'>You enable [chassis] defence mode.</span>")
-	else
-		chassis.deflect_chance = initial(chassis.deflect_chance)
-		chassis.occupant_message("<span class='danger'>You disable [chassis] defence mode.</span>")
-	chassis.log_message("Toggled defence mode.", LOG_MECHA)
-	UpdateButtonIcon()
-
 /datum/action/innate/mecha/mech_overload_mode
 	name = "Toggle leg actuators overload"
 	button_icon_state = "mech_overload_off"
@@ -246,38 +224,3 @@
 		else
 			owner.client.change_view(CONFIG_GET(string/default_view)) //world.view - default mob view size
 		UpdateButtonIcon()
-
-/datum/action/innate/mecha/mech_switch_damtype
-	name = "Reconfigure arm microtool arrays"
-	button_icon_state = "mech_damtype_brute"
-
-/datum/action/innate/mecha/mech_switch_damtype/Activate()
-	if(!owner || !chassis || chassis.occupant != owner)
-		return
-	var/new_damtype
-	switch(chassis.damtype)
-		if("tox")
-			new_damtype = "brute"
-			chassis.occupant_message("Your exosuit's hands form into fists.")
-		if("brute")
-			new_damtype = "fire"
-			chassis.occupant_message("A torch tip extends from your exosuit's hand, glowing red.")
-		if("fire")
-			new_damtype = "tox"
-			chassis.occupant_message("A bone-chillingly thick plasteel needle protracts from the exosuit's palm.")
-	chassis.damtype = new_damtype
-	button_icon_state = "mech_damtype_[new_damtype]"
-	playsound(src, 'sound/mecha/mechmove01.ogg', 50, 1)
-	UpdateButtonIcon()
-
-/datum/action/innate/mecha/mech_toggle_phasing
-	name = "Toggle Phasing"
-	button_icon_state = "mech_phasing_off"
-
-/datum/action/innate/mecha/mech_toggle_phasing/Activate()
-	if(!owner || !chassis || chassis.occupant != owner)
-		return
-	chassis.phasing = !chassis.phasing
-	button_icon_state = "mech_phasing_[chassis.phasing ? "on" : "off"]"
-	chassis.occupant_message("<font color=\"[chassis.phasing?"#00f\">En":"#f00\">Dis"]abled phasing.</font>")
-	UpdateButtonIcon()
