@@ -1,3 +1,13 @@
+#define SSE_MAX_GRANT_CIV 2500
+#define SSE_MAX_GRANT_ENG 3000
+#define SSE_MAX_GRANT_SCI 5000
+#define SSE_MAX_GRANT_SECMEDSRV 3000
+
+#define SSE_ALIVE_HUMANS_BOUNTY 100
+#define SSE_CREW_SAFETY_BOUNTY 1500
+#define SSE_MONSTER_BOUNTY 150
+#define SSE_MOOD_BOUNTY 100
+
 SUBSYSTEM_DEF(economy)
 	name = "Economy"
 	wait = 5 MINUTES
@@ -15,12 +25,7 @@ SUBSYSTEM_DEF(economy)
 	var/list/generated_accounts = list()
 	var/full_ancap = FALSE // Enables extra money charges for things that normally would be free, such as sleepers/cryo/cloning.
 							//Take care when enabling, as players will NOT respond well if the economy is set up for low cash flows.
-	var/alive_humans_bounty = 100
-	var/crew_safety_bounty = 1500
-	var/monster_bounty = 150
-	var/mood_bounty = 100
-	var/techweb_bounty = 250
-	var/slime_bounty = list("grey" = 10,
+	var/list/slime_bounty = list("grey" = 10,
 							// tier 1
 							"orange" = 100,
 							"metal" = 100,
@@ -56,9 +61,8 @@ SUBSYSTEM_DEF(economy)
 
 /datum/controller/subsystem/economy/fire(resumed = 0)
 	eng_payout()  // Payout based on nothing. What will replace it? Surplus power, powered APC's, air alarms? Who knows.
-	sci_payout() // Payout based on slimes.
-	secmedsrv_payout() // Payout based on crew safety, health, and mood.
 	civ_payout() // Payout based on ??? Profit
+	secmedsrvsci_payout() // Payout based on crew safety, health, slimes and mood.
 	for(var/A in bank_accounts)
 		var/datum/bank_account/B = A
 		B.payday(1)
@@ -70,62 +74,84 @@ SUBSYSTEM_DEF(economy)
 			return D
 
 /datum/controller/subsystem/economy/proc/eng_payout()
-	var/engineering_cash = 3000
+	var/engineering_cash = SSE_MAX_GRANT_ENG
 	var/datum/bank_account/D = get_dep_account(ACCOUNT_ENG)
 	if(D)
 		D.adjust_money(engineering_cash)
 
-/datum/controller/subsystem/economy/proc/secmedsrv_payout()
+/datum/controller/subsystem/economy/proc/civ_payout()
+	var/civ_cash = (rand(1,5) * SSE_MAX_GRANT_CIV * 0.2)
+	var/datum/bank_account/D = get_dep_account(ACCOUNT_CIV)
+	if(D)
+		D.adjust_money(min(civ_cash, SSE_MAX_GRANT_CIV))
+
+///This mess of a proc gets how much money medical, service, security and science should receive. This is all in one proc because that way we only need to run through GLOB.mob_list once.
+/datum/controller/subsystem/economy/proc/secmedsrvsci_payout()
 	var/crew
 	var/alive_crew
 	var/dead_monsters
-	var/cash_to_grant
-	for(var/mob/m in GLOB.mob_list)
+	var/security_payout
+	var/medical_payout
+	var/service_payout
+	var/science_payout
+	for(var/_m in GLOB.mob_list)
+		CHECK_TICK
+		var/mob/m = _m
+		if(!m) //mob_list is notorious for having some nulls in there.
+			continue
 		if(isnewplayer(m))
 			continue
 		if(m.mind)
 			if(isbrain(m) || iscameramob(m))
 				continue
 			if(ishuman(m))
-				var/mob/living/carbon/human/H = m
 				crew++
-				if(H.stat != DEAD)
-					alive_crew++
-					var/datum/component/mood/mood = H.GetComponent(/datum/component/mood)
-					var/medical_cash = (H.health / H.maxHealth) * alive_humans_bounty
-					if(mood)
-						var/datum/bank_account/D = get_dep_account(ACCOUNT_SRV)
-						if(D)
-							var/mood_dosh = (mood.mood_level / 9) * mood_bounty
-							D.adjust_money(mood_dosh)
-						medical_cash *= (mood.sanity / 100)
-
-					var/datum/bank_account/D = get_dep_account(ACCOUNT_MED)
-					if(D)
-						D.adjust_money(medical_cash)
+				if(m.stat == DEAD)
+					continue
+				var/mob/living/carbon/human/H = m
+				alive_crew++
+				//Service
+				var/datum/component/mood/mood = H.GetComponent(/datum/component/mood) //REE
+				if(mood)
+					service_payout += (mood.sanity / SANITY_NEUTRAL) * SSE_MOOD_BOUNTY
+				//Medical
+				medical_payout += (H.health / H.maxHealth) * SSE_ALIVE_HUMANS_BOUNTY
+				continue
 		if(ishostile(m))
-			var/mob/living/simple_animal/hostile/H = m
-			if(H.stat == DEAD && H.z in SSmapping.levels_by_trait(ZTRAIT_STATION))
-				dead_monsters++
-		CHECK_TICK
-	var/living_ratio = alive_crew / crew
-	cash_to_grant = (crew_safety_bounty * living_ratio) + (monster_bounty * dead_monsters)
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_SEC)
+			//Security
+			if(m.stat == DEAD)
+				if(m.z in SSmapping.levels_by_trait(ZTRAIT_STATION))
+					dead_monsters++
+				continue
+			//Science
+		if(isslime(m))
+			if(m.stat == DEAD)
+				continue
+			var/mob/living/simple_animal/slime/S = m
+			science_payout += slime_bounty[S.colour]
+	var/living_ratio = crew ? alive_crew / crew : 0
+	security_payout = (SSE_CREW_SAFETY_BOUNTY * living_ratio) + (SSE_MONSTER_BOUNTY * dead_monsters)
+	//Actual payout stuff.
+	var/datum/bank_account/D
+	D = get_dep_account(ACCOUNT_SEC)
 	if(D)
-		D.adjust_money(min(cash_to_grant, MAX_GRANT_SECMEDSRV))
+		D.adjust_money(min(security_payout, SSE_MAX_GRANT_SECMEDSRV))
+	D = get_dep_account(ACCOUNT_MED)
+	if(D)
+		D.adjust_money(min(medical_payout, SSE_MAX_GRANT_SECMEDSRV))
+	D = get_dep_account(ACCOUNT_SRV)
+	if(D)
+		D.adjust_money(min(service_payout, SSE_MAX_GRANT_SECMEDSRV))
+	D = get_dep_account(ACCOUNT_SCI)
+	if(D)
+		D.adjust_money(min(science_payout, SSE_MAX_GRANT_SCI))
 
-/datum/controller/subsystem/economy/proc/sci_payout()
-	var/science_bounty = 0
-	for(var/mob/living/simple_animal/slime/S in GLOB.mob_list)
-		if(S.stat == DEAD)
-			continue
-		science_bounty += slime_bounty[S.colour]
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_SCI)
-	if(D)
-		D.adjust_money(min(science_bounty, MAX_GRANT_SCI))
+#undef SSE_MAX_GRANT_CIV
+#undef SSE_MAX_GRANT_ENG
+#undef SSE_MAX_GRANT_SCI
+#undef SSE_MAX_GRANT_SECMEDSRV
 
-/datum/controller/subsystem/economy/proc/civ_payout()
-	var/civ_cash = (rand(1,5) * 500)
-	var/datum/bank_account/D = get_dep_account(ACCOUNT_CIV)
-	if(D)
-		D.adjust_money(min(civ_cash, MAX_GRANT_CIV))
+#undef SSE_ALIVE_HUMANS_BOUNTY
+#undef SSE_CREW_SAFETY_BOUNTY
+#undef SSE_MONSTER_BOUNTY
+#undef SSE_MOOD_BOUNTY

@@ -7,11 +7,6 @@
 #define PAYCHECK_HARD 40
 #define PAYCHECK_COMMAND 100
 
-#define MAX_GRANT_CIV 2500
-#define MAX_GRANT_ENG 3000
-#define MAX_GRANT_SCI 5000
-#define MAX_GRANT_SECMEDSRV 3000
-
 #define ACCOUNT_CIV "CIV"
 #define ACCOUNT_CIV_NAME "Civil Budget"
 #define ACCOUNT_ENG "ENG"
@@ -28,3 +23,5 @@
 #define ACCOUNT_SEC_NAME "Defense Budget"
 
 #define NO_FREEBIES "commies go home"
+
+#define TECHWEB_BOUNTY 250

@@ -218,7 +218,7 @@
 	if(get_that_dosh)
 		var/datum/bank_account/D = SSeconomy.get_dep_account(ACCOUNT_SCI)
 		if(D)
-			D.adjust_money(SSeconomy.techweb_bounty)
+			D.adjust_money(TECHWEB_BOUNTY)
 	return TRUE
 
 /datum/techweb/science/research_node(datum/techweb_node/node, force = FALSE, auto_adjust_cost = TRUE, get_that_dosh = TRUE) //When something is researched, triggers the proc for this techweb only
