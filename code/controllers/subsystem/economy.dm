@@ -1,3 +1,5 @@
+#define SSE_BUDGET_POOL 35000
+
 #define SSE_MAX_GRANT_CIV 2500
 #define SSE_MAX_GRANT_ENG 3000
 #define SSE_MAX_GRANT_SCI 5000
@@ -13,8 +15,6 @@ SUBSYSTEM_DEF(economy)
 	wait = 5 MINUTES
 	init_order = INIT_ORDER_ECONOMY
 	runlevels = RUNLEVEL_GAME
-	var/roundstart_paychecks = 5
-	var/budget_pool = 35000
 	var/list/department_accounts = list(ACCOUNT_CIV = ACCOUNT_CIV_NAME,
 										ACCOUNT_ENG = ACCOUNT_ENG_NAME,
 										ACCOUNT_SCI = ACCOUNT_SCI_NAME,
@@ -54,7 +54,7 @@ SUBSYSTEM_DEF(economy)
 	var/list/dep_cards = list()
 
 /datum/controller/subsystem/economy/Initialize(timeofday)
-	var/budget_to_hand_out = round(budget_pool / department_accounts.len)
+	var/budget_to_hand_out = round(SSE_BUDGET_POOL / department_accounts.len)
 	for(var/A in department_accounts)
 		new /datum/bank_account/department(A, budget_to_hand_out)
 	return ..()
@@ -145,6 +145,8 @@ SUBSYSTEM_DEF(economy)
 	D = get_dep_account(ACCOUNT_SCI)
 	if(D)
 		D.adjust_money(min(science_payout, SSE_MAX_GRANT_SCI))
+
+#undef SSE_BUDGET_POOL
 
 #undef SSE_MAX_GRANT_CIV
 #undef SSE_MAX_GRANT_ENG
