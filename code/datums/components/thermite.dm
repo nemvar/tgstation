@@ -31,8 +31,8 @@
 	amount = _amount
 	if(resistlist[parent.type])
 		burn_require = 50
-		return
-	burn_require = 30
+	else
+		burn_require = 30
 
 
 
