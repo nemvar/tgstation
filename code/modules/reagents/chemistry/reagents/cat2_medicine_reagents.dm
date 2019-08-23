@@ -157,6 +157,7 @@
 	phis.brute_mod = max(phis.brute_mod - reset_mods, 1)
 	phis.burn_mod = max(phis.burn_mod - reset_mods, 1)
 	phis.oxy_mod = max(phis.oxy_mod - reset_mods, 1)
+	phis.stamina_mod += max(phis.stamina_mod - reset_mods, 1)
 	return ..()
 
 /datum/reagent/medicine/C2/fiziver/overdose_process(mob/living/carbon/human/M)
