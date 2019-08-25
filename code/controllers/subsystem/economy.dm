@@ -129,7 +129,7 @@ SUBSYSTEM_DEF(economy)
 				continue
 			var/mob/living/simple_animal/slime/S = m
 			science_payout += slime_bounty[S.colour]
-	var/living_ratio = crew ? alive_crew / crew : 0
+	var/living_ratio = crew ? round(alive_crew / crew) : 0
 	security_payout = (SSE_CREW_SAFETY_BOUNTY * living_ratio) + (SSE_MONSTER_BOUNTY * dead_monsters)
 	//Actual payout stuff.
 	var/datum/bank_account/D
