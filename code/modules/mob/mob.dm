@@ -193,20 +193,27 @@
 	hearers -= ignored_mobs
 	if(self_message)
 		hearers -= src
+
+	//If src is inside of something and not a turf, only show the blind_message.
+	if(T != loc && T != src)
+		if(!blind_message)
+			return
+		for(var/mob/M in hearers)
+			M.show_message(blind_message, MSG_VISUAL, blind_message, MSG_AUDIBLE)
+		return
+
 	for(var/mob/M in hearers)
 		if(!M.client)
 			continue
-		//This entire if/else chain could be in two lines but isn't for readibilties sake.
 		var/msg = message
 		if(M.see_invisible < invisibility)//if src is invisible to M
-			msg = blind_message
-		else if(T != loc && T != src) //if src is inside something and not a turf.
 			msg = blind_message
 		else if(T.lighting_object && T.lighting_object.invisibility <= M.see_invisible && T.is_softly_lit()) //if it is too dark.
 			msg = blind_message
 		if(!msg)
 			continue
 		M.show_message(msg, MSG_VISUAL, blind_message, MSG_AUDIBLE)
+
 
 ///Adds the functionality to self_message.
 /mob/visible_message(message, self_message, blind_message, vision_distance = DEFAULT_MESSAGE_RANGE, list/ignored_mobs)
