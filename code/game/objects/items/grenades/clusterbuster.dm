@@ -121,7 +121,7 @@
 	name = "Electromagnetic Storm"
 	payload = /obj/item/grenade/empgrenade
 
-/obj/item/grenade/clusterbuster/smoke
+obj/item/grenade/clusterbuster/smoke
 	name = "Ninja Vanish"
 	payload = /obj/item/grenade/smokebomb
 

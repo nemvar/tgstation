@@ -67,7 +67,7 @@
 
 /obj/item/grenade/c4/attack_self(mob/user)
 	var/newtime = input(usr, "Please set the timer.", "Timer", 10) as num|null
-	
+
 	if (isnull(newtime))
 		return
 
@@ -126,8 +126,6 @@
 			message_say = "VIVA LA REVOLUTION!"
 		else if(UM.has_antag_datum(/datum/antagonist/brother))
 			message_say = "FOR MY BROTHER!"
-		else if(UM.has_antag_datum(/datum/antagonist/ninja))
-			message_say = "FOR THE SPIDER CLAN!"
 		else if(UM.has_antag_datum(/datum/antagonist/fugitive))
 			message_say = "FOR FREEDOM!"
 		else if(UM.has_antag_datum(/datum/antagonist/ashwalker))
